@@ -1,0 +1,14 @@
+const express = require('express');
+const router = express.Router();
+const anunciosController = require('../controllers/anunciosController');
+const auth = require('../middlewares/auth');
+const upload = require('../middlewares/upload');
+
+router.get('/', anunciosController.getAllAnuncios);
+router.get('/:id', anunciosController.getAnuncioById);
+
+router.post('/', auth, upload.array('fotos', 5), anunciosController.createAnuncio);
+router.put('/:id', auth, anunciosController.updateAnuncio);
+router.patch('/:id/vendido', auth, anunciosController.markAsSold);
+
+module.exports = router;
