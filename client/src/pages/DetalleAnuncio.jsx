@@ -36,7 +36,7 @@ const DetalleAnuncio = () => {
     <div>
       <Link to="/" className="btn btn-outline mb-4">← Volver al listado</Link>
       
-      <div className="glass-panel p-6" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '30px' }}>
+      <div className="glass-panel p-6 detalle-grid">
         {/* Left Column: Photos */}
         <div>
           {anuncio.fotos && anuncio.fotos.length > 0 ? (
@@ -98,6 +98,15 @@ const DetalleAnuncio = () => {
               )}
             </div>
           </div>
+
+          {anuncio.descripcion && (
+            <div className="glass-card p-6 mb-4">
+              <h3 style={{ marginBottom: '12px', fontSize: '1.2rem' }}>Descripción</h3>
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {anuncio.descripcion}
+              </p>
+            </div>
+          )}
 
           <div className="glass-card p-6">
             <h3 style={{ marginBottom: '12px', fontSize: '1.2rem' }}>Información del Vendedor</h3>

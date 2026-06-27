@@ -52,15 +52,16 @@ exports.getAnuncioById = async (req, res) => {
 
 exports.createAnuncio = async (req, res) => {
   try {
-    const { marca, modelo, año, precio, kilometraje } = req.body;
+    const { marca, modelo, anio, precio, kilometraje, descripcion } = req.body;
     const usuario_id = req.usuario.id;
 
     const nuevoAnuncio = await Anuncio.create({
       marca,
       modelo,
-      año,
+      año: anio,
       precio,
       kilometraje,
+      descripcion,
       usuario_id
     });
 
@@ -85,7 +86,7 @@ exports.createAnuncio = async (req, res) => {
 
 exports.updateAnuncio = async (req, res) => {
   try {
-    const { marca, modelo, año, precio, kilometraje } = req.body;
+    const { marca, modelo, anio, precio, kilometraje, descripcion } = req.body;
     const anuncio = await Anuncio.findByPk(req.params.id);
 
     if (!anuncio) {
@@ -96,7 +97,7 @@ exports.updateAnuncio = async (req, res) => {
       return res.status(403).json({ message: 'No tienes permiso para editar este anuncio' });
     }
 
-    await anuncio.update({ marca, modelo, año, precio, kilometraje });
+    await anuncio.update({ marca, modelo, año: anio, precio, kilometraje, descripcion });
 
     res.json({ message: 'Anuncio actualizado correctamente', anuncio });
   } catch (error) {
@@ -123,5 +124,26 @@ exports.markAsSold = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al actualizar el estado' });
+  }
+};
+
+exports.deleteAnuncio = async (req, res) => {
+  try {
+    const anuncio = await Anuncio.findByPk(req.params.id);
+
+    if (!anuncio) {
+      return res.status(404).json({ message: 'Anuncio no encontrado' });
+    }
+
+    if (anuncio.usuario_id !== req.usuario.id) {
+      return res.status(403).json({ message: 'No tienes permiso para eliminar este anuncio' });
+    }
+
+    await anuncio.destroy();
+
+    res.json({ message: 'Anuncio eliminado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al eliminar el anuncio' });
   }
 };

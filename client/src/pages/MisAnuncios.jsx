@@ -31,6 +31,17 @@ const MisAnuncios = () => {
     }
   };
 
+  const handleEliminar = async (id) => {
+    if (window.confirm('¿Seguro que deseas eliminar este anuncio de forma permanente?')) {
+      try {
+        await api.delete(`/anuncios/${id}`);
+        fetchMisAnuncios();
+      } catch (error) {
+        alert('Error al eliminar');
+      }
+    }
+  };
+
   const handleMarcarVendido = async (id) => {
     if (window.confirm('¿Seguro que deseas marcar este anuncio como vendido?')) {
       try {
@@ -62,7 +73,7 @@ const MisAnuncios = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {anuncios.map(anuncio => (
-            <div key={anuncio.id} className="glass-panel p-6" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div key={anuncio.id} className="glass-panel p-6 anuncio-card">
               <div style={{ width: '150px', height: '100px', flexShrink: 0 }}>
                 {anuncio.fotos && anuncio.fotos.length > 0 ? (
                   <img 
@@ -86,13 +97,18 @@ const MisAnuncios = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {anuncio.estado === 'Activo' && (
-                  <button onClick={() => handleMarcarVendido(anuncio.id)} className="btn btn-success">
-                    <CheckCircle size={16} /> Marcar Vendido
-                  </button>
+                  <>
+                    <button onClick={() => handleMarcarVendido(anuncio.id)} className="btn btn-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                      <CheckCircle size={14} /> Marcar Vendido
+                    </button>
+                    <Link to={`/editar/${anuncio.id}`} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', textAlign: 'center' }}>
+                      <Edit size={14} /> Editar
+                    </Link>
+                  </>
                 )}
-                <Link to={`/anuncio/${anuncio.id}`} className="btn btn-outline">
-                  Ver Detalles
-                </Link>
+                <button onClick={() => handleEliminar(anuncio.id)} className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                  <Trash2 size={14} /> Eliminar
+                </button>
               </div>
             </div>
           ))}

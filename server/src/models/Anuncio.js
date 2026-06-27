@@ -27,6 +27,10 @@ const Anuncio = sequelize.define('Anuncio', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  descripcion: {
+    type: DataTypes.STRING(1000),
+    allowNull: true,
+  },
   estado: {
     type: DataTypes.ENUM('Activo', 'Vendido'),
     defaultValue: 'Activo',

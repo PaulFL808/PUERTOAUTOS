@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import api from '../services/api';
 
+const MARCAS = ['Toyota', 'Chevrolet', 'Nissan', 'Hyundai', 'Kia', 'Suzuki'];
+
 const Inicio = () => {
   const [anuncios, setAnuncios] = useState([]);
   const [filtros, setFiltros] = useState({
@@ -54,13 +56,14 @@ const Inicio = () => {
         <form onSubmit={handleFilter} style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
           <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
             <label className="form-label">Marca</label>
-            <input 
-              type="text" 
+            <select 
               className="form-control" 
-              placeholder="Ej: Toyota" 
               value={filtros.marca}
               onChange={(e) => setFiltros({ ...filtros, marca: e.target.value })}
-            />
+            >
+              <option value="">Todas las marcas</option>
+              {MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
           </div>
           <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
             <label className="form-label">Precio Máximo</label>

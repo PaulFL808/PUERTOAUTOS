@@ -10,5 +10,6 @@ router.get('/:id', anunciosController.getAnuncioById);
 router.post('/', auth, upload.array('fotos', 5), anunciosController.createAnuncio);
 router.put('/:id', auth, anunciosController.updateAnuncio);
 router.patch('/:id/vendido', auth, anunciosController.markAsSold);
+router.delete('/:id', auth, anunciosController.deleteAnuncio);
 
 module.exports = router;

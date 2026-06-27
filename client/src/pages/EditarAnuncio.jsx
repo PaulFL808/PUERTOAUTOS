@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Send, ImagePlus } from 'lucide-react';
+import { Save } from 'lucide-react';
 import api from '../services/api';
 
 const MARCAS_MODELOS = {
@@ -14,7 +14,8 @@ const MARCAS_MODELOS = {
   Otro: ['Otro']
 };
 
-const PublicarAnuncio = () => {
+const EditarAnuncio = () => {
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
@@ -25,10 +26,54 @@ const PublicarAnuncio = () => {
   });
   const [marcaSelect, setMarcaSelect] = useState('');
   const [modeloSelect, setModeloSelect] = useState('');
-  const [fotos, setFotos] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchAnuncio();
+  }, [id]);
+
+  const fetchAnuncio = async () => {
+    try {
+      const { data } = await api.get(`/anuncios/${id}`);
+      // Solo el dueño puede editar
+      if (user && data.usuario_id !== user.id) {
+        alert('No tienes permiso para editar este anuncio');
+        navigate('/mis-anuncios');
+        return;
+      }
+
+      setFormData({
+        marca: data.marca,
+        modelo: data.modelo,
+        anio: data.año, // mapeo de la DB (año) al estado local (anio)
+        precio: data.precio,
+        kilometraje: data.kilometraje,
+        descripcion: data.descripcion || ''
+      });
+
+      // Configurar comboboxes
+      if (Object.keys(MARCAS_MODELOS).includes(data.marca)) {
+        setMarcaSelect(data.marca);
+        if (MARCAS_MODELOS[data.marca].includes(data.modelo)) {
+          setModeloSelect(data.modelo);
+        } else {
+          setModeloSelect('Otro');
+        }
+      } else {
+        setMarcaSelect('Otro');
+        setModeloSelect('Otro');
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert('Error al cargar el anuncio');
+      navigate('/mis-anuncios');
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,46 +92,27 @@ const PublicarAnuncio = () => {
     setFormData(prev => ({ ...prev, modelo: value === 'Otro' ? '' : value }));
   };
 
-  const handleFileChange = (e) => {
-    setFotos(e.target.files);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
-      alert('Debes iniciar sesión para publicar un anuncio.');
-      return;
-    }
-    
-    setLoading(true);
+    setSaving(true);
     
     try {
-      const data = new FormData();
-      Object.keys(formData).forEach(key => {
-        data.append(key, formData[key]);
-      });
-      
-      for (let i = 0; i < fotos.length; i++) {
-        data.append('fotos', fotos[i]);
-      }
-
-      await api.post('/anuncios', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
+      await api.put(`/anuncios/${id}`, formData);
       navigate('/mis-anuncios');
     } catch (error) {
-      console.error('Error publicando anuncio', error);
-      alert('Hubo un error al publicar el anuncio.');
+      console.error('Error editando anuncio', error);
+      alert('Hubo un error al editar el anuncio.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return <div className="flex-center mt-4"><h2 className="title">Cargando...</h2></div>;
 
   return (
     <div className="flex-center">
       <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '600px' }}>
-        <h2 className="title" style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Publicar Vehículo</h2>
+        <h2 className="title" style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Editar Anuncio</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-grid-2">
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -143,25 +169,10 @@ const PublicarAnuncio = () => {
             ></textarea>
           </div>
 
-          <div className="form-group mt-4">
-            <label className="form-label">Fotos (Máx 5)</label>
-            <div className="glass-card flex-center" style={{ borderStyle: 'dashed', height: '120px', cursor: 'pointer', position: 'relative' }}>
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-              />
-              <div className="flex-center" style={{ flexDirection: 'column', color: 'var(--text-muted)' }}>
-                <ImagePlus size={32} style={{ marginBottom: '8px' }} />
-                <span>{fotos.length > 0 ? `${fotos.length} fotos seleccionadas` : 'Arrastra o haz clic para subir fotos'}</span>
-              </div>
-            </div>
-          </div>
+          {/* En una edición de MVP simplificada, usualmente no se cambian las fotos, o se requiere un sistema más complejo de eliminar/añadir. Lo dejaremos sin edición de fotos por ahora. */}
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '12px' }} disabled={loading}>
-            {loading ? 'Publicando...' : <><Send size={18} /> Publicar Anuncio</>}
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '12px' }} disabled={saving}>
+            {saving ? 'Guardando...' : <><Save size={18} /> Guardar Cambios</>}
           </button>
         </form>
       </div>
@@ -169,4 +180,4 @@ const PublicarAnuncio = () => {
   );
 };
 
-export default PublicarAnuncio;
+export default EditarAnuncio;
