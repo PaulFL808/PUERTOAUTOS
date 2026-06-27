@@ -267,6 +267,11 @@ a {
 .detalle-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
 .anuncio-card { display: flex; gap: 20px; align-items: center; }
 
+/* Navbar & Search */
+.navbar-title { font-size: 1.5rem; }
+.navbar-actions { gap: 20px; }
+.search-form { display: flex; gap: 16px; align-items: flex-end; }
+
 @media (max-width: 768px) {
   body { font-size: 14px; }
   .title { font-size: 1.8rem !important; }
@@ -275,6 +280,17 @@ a {
   .form-grid-2, .form-grid-3, .detalle-grid { grid-template-columns: 1fr !important; }
   .anuncio-card { flex-direction: column; align-items: flex-start; }
   .anuncio-card > div:first-child { width: 100% !important; height: 200px !important; }
+  
+  /* Navbar & Search Mobile Fixes */
+  .navbar-title { font-size: 1.1rem !important; display: none; } /* Hide text to save space on very small screens, or just make it small */
+  .navbar-actions { gap: 8px !important; }
+  .navbar-actions .btn { padding: 8px 12px; font-size: 0.8rem; }
+  
+  .search-form { flex-direction: column; align-items: stretch; }
+  .search-form button { width: 100%; }
+}
+@media (min-width: 400px) and (max-width: 768px) {
+  .navbar-title { display: block; font-size: 1.1rem !important; }
 }
 
 /* Responsividad (Mobile/Smartphones) */

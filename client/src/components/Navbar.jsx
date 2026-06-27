@@ -17,12 +17,12 @@ const Navbar = () => {
       <div className="container flex-between">
         <Link to="/" className="flex-center" style={{ gap: '10px' }}>
           <CarFront size={32} className="text-gradient" />
-          <h1 className="title" style={{ fontSize: '1.5rem', marginBottom: 0 }}>
+          <h1 className="title navbar-title" style={{ marginBottom: 0 }}>
             PUERTOAUTOS
           </h1>
         </Link>
         
-        <div className="flex-center" style={{ gap: '20px' }}>
+        <div className="flex-center navbar-actions">
           {user ? (
             <>
               <Link to="/mis-anuncios" className="form-label" style={{ color: 'var(--text-main)' }}>

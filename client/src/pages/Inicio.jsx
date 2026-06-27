@@ -53,7 +53,7 @@ const Inicio = () => {
       </div>
 
       <div className="glass-panel p-6 mb-4">
-        <form onSubmit={handleFilter} style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
+        <form onSubmit={handleFilter} className="search-form">
           <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
             <label className="form-label">Marca</label>
             <select 
