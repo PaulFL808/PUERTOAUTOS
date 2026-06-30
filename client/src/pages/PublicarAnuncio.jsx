@@ -26,6 +26,7 @@ const PublicarAnuncio = () => {
   const [marcaSelect, setMarcaSelect] = useState('');
   const [modeloSelect, setModeloSelect] = useState('');
   const [fotos, setFotos] = useState([]);
+  const [fotosPreview, setFotosPreview] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -48,7 +49,10 @@ const PublicarAnuncio = () => {
   };
 
   const handleFileChange = (e) => {
-    setFotos(e.target.files);
+    const files = Array.from(e.target.files);
+    setFotos(files);
+    const previews = files.map(file => URL.createObjectURL(file));
+    setFotosPreview(previews);
   };
 
   const handleSubmit = async (e) => {
@@ -158,6 +162,14 @@ const PublicarAnuncio = () => {
                 <span>{fotos.length > 0 ? `${fotos.length} fotos seleccionadas` : 'Arrastra o haz clic para subir fotos'}</span>
               </div>
             </div>
+            
+            {fotosPreview.length > 0 && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto' }}>
+                {fotosPreview.map((src, index) => (
+                  <img key={index} src={src} alt="preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                ))}
+              </div>
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '12px' }} disabled={loading}>

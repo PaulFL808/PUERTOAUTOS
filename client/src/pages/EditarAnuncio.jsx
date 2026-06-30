@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Save } from 'lucide-react';
+import { Save, ImagePlus } from 'lucide-react';
 import api from '../services/api';
 
 const MARCAS_MODELOS = {
@@ -26,6 +26,11 @@ const EditarAnuncio = () => {
   });
   const [marcaSelect, setMarcaSelect] = useState('');
   const [modeloSelect, setModeloSelect] = useState('');
+  
+  const [fotos, setFotos] = useState([]);
+  const [fotosPreview, setFotosPreview] = useState([]);
+  const [fotosExistentes, setFotosExistentes] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user } = useContext(AuthContext);
@@ -38,7 +43,6 @@ const EditarAnuncio = () => {
   const fetchAnuncio = async () => {
     try {
       const { data } = await api.get(`/anuncios/${id}`);
-      // Solo el dueño puede editar
       if (user && data.usuario_id !== user.id) {
         alert('No tienes permiso para editar este anuncio');
         navigate('/mis-anuncios');
@@ -48,13 +52,16 @@ const EditarAnuncio = () => {
       setFormData({
         marca: data.marca,
         modelo: data.modelo,
-        anio: data.año, // mapeo de la DB (año) al estado local (anio)
+        anio: data.año,
         precio: data.precio,
         kilometraje: data.kilometraje,
         descripcion: data.descripcion || ''
       });
 
-      // Configurar comboboxes
+      if (data.fotos) {
+        setFotosExistentes(data.fotos);
+      }
+
       if (Object.keys(MARCAS_MODELOS).includes(data.marca)) {
         setMarcaSelect(data.marca);
         if (MARCAS_MODELOS[data.marca].includes(data.modelo)) {
@@ -92,12 +99,32 @@ const EditarAnuncio = () => {
     setFormData(prev => ({ ...prev, modelo: value === 'Otro' ? '' : value }));
   };
 
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFotos(files);
+    const previews = files.map(file => URL.createObjectURL(file));
+    setFotosPreview(previews);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     
     try {
-      await api.put(`/anuncios/${id}`, formData);
+      const data = new FormData();
+      Object.keys(formData).forEach(key => {
+        data.append(key, formData[key]);
+      });
+      
+      if (fotos.length > 0) {
+        for (let i = 0; i < fotos.length; i++) {
+          data.append('fotos', fotos[i]);
+        }
+      }
+
+      await api.put(`/anuncios/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       navigate('/mis-anuncios');
     } catch (error) {
       console.error('Error editando anuncio', error);
@@ -169,7 +196,47 @@ const EditarAnuncio = () => {
             ></textarea>
           </div>
 
-          {/* En una edición de MVP simplificada, usualmente no se cambian las fotos, o se requiere un sistema más complejo de eliminar/añadir. Lo dejaremos sin edición de fotos por ahora. */}
+          <div className="form-group mt-4">
+            <label className="form-label">Fotos (Máx 5)</label>
+            
+            {/* Si no ha seleccionado nuevas fotos, mostramos las existentes */}
+            {fotosPreview.length === 0 && fotosExistentes.length > 0 && (
+              <div style={{ marginBottom: '12px' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Fotos actuales:</p>
+                <div style={{ display: 'flex', gap: '10px', overflowX: 'auto' }}>
+                  {fotosExistentes.map(foto => (
+                    <img key={foto.id} src={`https://api-production-710a.up.railway.app${foto.url}`} alt="existente" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="glass-card flex-center" style={{ borderStyle: 'dashed', height: '120px', cursor: 'pointer', position: 'relative' }}>
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+              />
+              <div className="flex-center" style={{ flexDirection: 'column', color: 'var(--text-muted)' }}>
+                <ImagePlus size={32} style={{ marginBottom: '8px' }} />
+                <span>{fotos.length > 0 ? `${fotos.length} fotos nuevas seleccionadas` : 'Arrastra o haz clic para cambiar las fotos'}</span>
+              </div>
+            </div>
+            
+            {/* Previsualización de las nuevas fotos */}
+            {fotosPreview.length > 0 && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto' }}>
+                {fotosPreview.map((src, index) => (
+                  <img key={index} src={src} alt="preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                ))}
+              </div>
+            )}
+            {fotosPreview.length > 0 && (
+              <p style={{ fontSize: '0.8rem', color: '#f87171', marginTop: '8px' }}>Nota: Las fotos nuevas reemplazarán a las anteriores.</p>
+            )}
+          </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '12px' }} disabled={saving}>
             {saving ? 'Guardando...' : <><Save size={18} /> Guardar Cambios</>}

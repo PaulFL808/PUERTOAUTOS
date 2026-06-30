@@ -99,7 +99,22 @@ exports.updateAnuncio = async (req, res) => {
 
     await anuncio.update({ marca, modelo, año: anio, precio, kilometraje, descripcion });
 
-    res.json({ message: 'Anuncio actualizado correctamente', anuncio });
+    if (req.files && req.files.length > 0) {
+      // Eliminar las fotos anteriores de la base de datos
+      await Foto.destroy({ where: { anuncio_id: anuncio.id } });
+      
+      const fotosData = req.files.map(file => ({
+        url: `/uploads/${file.filename}`,
+        anuncio_id: anuncio.id
+      }));
+      await Foto.bulkCreate(fotosData);
+    }
+
+    const anuncioActualizado = await Anuncio.findByPk(anuncio.id, {
+      include: [{ model: Foto, as: 'fotos' }]
+    });
+
+    res.json({ message: 'Anuncio actualizado correctamente', anuncio: anuncioActualizado });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al actualizar el anuncio' });

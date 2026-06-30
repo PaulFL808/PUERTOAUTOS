@@ -316,7 +316,11 @@ a {
     gap: 16px;
   }
   
-  .glass-panel, .glass-card {
+  .glass-panel {
+    padding: 1rem;
+  }
+  
+  .glass-card .p-6 {
     padding: 1rem;
   }
   

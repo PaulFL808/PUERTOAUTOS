@@ -89,10 +89,10 @@ const Inicio = () => {
                 <img 
                   src={`https://api-production-710a.up.railway.app${anuncio.fotos[0].url}`} 
                   alt={`${anuncio.marca} ${anuncio.modelo}`} 
-                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <div className="img-placeholder">
+                <div className="img-placeholder" style={{ height: '240px' }}>
                   Sin imagen
                 </div>
               )}

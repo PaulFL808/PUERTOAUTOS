@@ -2,12 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Calendar, Gauge, Tag } from 'lucide-react';
+import { Mail, Calendar, Gauge, Tag, X } from 'lucide-react';
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
   const [anuncio, setAnuncio] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null); // Estado para el lightbox
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
@@ -43,7 +44,8 @@ const DetalleAnuncio = () => {
             <img 
               src={`https://api-production-710a.up.railway.app${anuncio.fotos[0].url}`} 
               alt={`${anuncio.marca} ${anuncio.modelo}`} 
-              style={{ width: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'cover', height: '400px' }}
+              style={{ width: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'cover', height: '400px', cursor: 'pointer' }}
+              onClick={() => setSelectedImage(`https://api-production-710a.up.railway.app${anuncio.fotos[0].url}`)}
             />
           ) : (
             <div className="img-placeholder" style={{ borderRadius: 'var(--radius-lg)', height: '400px' }}>
@@ -57,7 +59,8 @@ const DetalleAnuncio = () => {
                 key={foto.id} 
                 src={`https://api-production-710a.up.railway.app${foto.url}`} 
                 alt="" 
-                style={{ width: '100px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
+                style={{ width: '100px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+                onClick={() => setSelectedImage(`https://api-production-710a.up.railway.app${foto.url}`)}
               />
             ))}
           </div>
@@ -124,6 +127,51 @@ const DetalleAnuncio = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox / Modal de Imagen a Pantalla Completa */}
+      {selectedImage && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            onClick={() => setSelectedImage(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: '10px'
+            }}
+          >
+            <X size={36} />
+          </button>
+          
+          <img 
+            src={selectedImage} 
+            alt="Fullscreen" 
+            style={{
+              maxWidth: '100%',
+              maxHeight: '90vh',
+              objectFit: 'contain',
+              borderRadius: '8px'
+            }}
+            onClick={(e) => e.stopPropagation()} /* Evita cerrar si hace clic en la foto */
+          />
+        </div>
+      )}
     </div>
   );
 };
