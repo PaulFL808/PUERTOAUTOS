@@ -77,8 +77,8 @@ const MisAnuncios = () => {
               <div style={{ width: '150px', height: '100px', flexShrink: 0 }}>
                 {anuncio.fotos && anuncio.fotos.length > 0 ? (
                   <img 
-                    src={`http://localhost:3000${anuncio.fotos[0].url}`} 
-                    alt="Auto" 
+                    src={`https://api-production-710a.up.railway.app${anuncio.fotos[0].url}`} 
+                    alt={`${anuncio.marca} ${anuncio.modelo}`} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} 
                   />
                 ) : (

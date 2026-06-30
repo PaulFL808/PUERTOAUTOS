@@ -41,7 +41,7 @@ const DetalleAnuncio = () => {
         <div>
           {anuncio.fotos && anuncio.fotos.length > 0 ? (
             <img 
-              src={`http://localhost:3000${anuncio.fotos[0].url}`} 
+              src={`https://api-production-710a.up.railway.app${anuncio.fotos[0].url}`} 
               alt={`${anuncio.marca} ${anuncio.modelo}`} 
               style={{ width: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'cover', height: '400px' }}
             />
@@ -55,7 +55,7 @@ const DetalleAnuncio = () => {
             {anuncio.fotos && anuncio.fotos.slice(1).map(foto => (
               <img 
                 key={foto.id} 
-                src={`http://localhost:3000${foto.url}`} 
+                src={`https://api-production-710a.up.railway.app${foto.url}`} 
                 alt="" 
                 style={{ width: '100px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
               />
