@@ -120,6 +120,9 @@ const EditarAnuncio = () => {
         for (let i = 0; i < fotos.length; i++) {
           data.append('fotos', fotos[i]);
         }
+      } else {
+        // Si no hay fotos nuevas, enviamos cuáles queremos mantener (o si eliminamos todas)
+        data.append('fotos_mantener', JSON.stringify(fotosExistentes.map(f => f.id)));
       }
 
       await api.put(`/anuncios/${id}`, data, {
@@ -202,10 +205,22 @@ const EditarAnuncio = () => {
             {/* Si no ha seleccionado nuevas fotos, mostramos las existentes */}
             {fotosPreview.length === 0 && fotosExistentes.length > 0 && (
               <div style={{ marginBottom: '12px' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Fotos actuales:</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Fotos actuales:</p>
+                  <button type="button" onClick={() => setFotosExistentes([])} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.85rem' }}>Eliminar todas</button>
+                </div>
                 <div style={{ display: 'flex', gap: '10px', overflowX: 'auto' }}>
                   {fotosExistentes.map(foto => (
-                    <img key={foto.id} src={`https://api-production-710a.up.railway.app${foto.url}`} alt="existente" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div key={foto.id} style={{ position: 'relative', display: 'inline-block' }}>
+                      <img src={`https://api-production-710a.up.railway.app${foto.url}`} alt="existente" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                      <button 
+                        type="button" 
+                        onClick={() => setFotosExistentes(fotosExistentes.filter(f => f.id !== foto.id))}
+                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>

@@ -99,6 +99,8 @@ exports.updateAnuncio = async (req, res) => {
 
     await anuncio.update({ marca, modelo, año: anio, precio, kilometraje, descripcion });
 
+    const fotosMantenerStr = req.body.fotos_mantener;
+
     if (req.files && req.files.length > 0) {
       // Eliminar las fotos anteriores de la base de datos
       await Foto.destroy({ where: { anuncio_id: anuncio.id } });
@@ -108,6 +110,19 @@ exports.updateAnuncio = async (req, res) => {
         anuncio_id: anuncio.id
       }));
       await Foto.bulkCreate(fotosData);
+    } else if (fotosMantenerStr) {
+      // Si no hay archivos nuevos, revisar si se eliminó alguna foto existente
+      const fotosMantener = JSON.parse(fotosMantenerStr);
+      if (fotosMantener.length === 0) {
+        await Foto.destroy({ where: { anuncio_id: anuncio.id } });
+      } else {
+        await Foto.destroy({
+          where: {
+            anuncio_id: anuncio.id,
+            id: { [Op.notIn]: fotosMantener }
+          }
+        });
+      }
     }
 
     const anuncioActualizado = await Anuncio.findByPk(anuncio.id, {
