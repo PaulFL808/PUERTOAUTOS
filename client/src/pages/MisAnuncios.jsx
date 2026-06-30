@@ -7,16 +7,17 @@ import { CheckCircle, Edit, Trash2 } from 'lucide-react';
 const MisAnuncios = () => {
   const [anuncios, setAnuncios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate('/login');
       return;
     }
     fetchMisAnuncios();
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchMisAnuncios = async () => {
     try {
