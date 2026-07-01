@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Calendar, Gauge, Tag, X } from 'lucide-react';
+import { Mail, Calendar, Gauge, Tag, X, Trash2 } from 'lucide-react';
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
@@ -14,6 +14,17 @@ const DetalleAnuncio = () => {
   useEffect(() => {
     fetchAnuncio();
   }, [id]);
+
+  const handleEliminarAdmin = async () => {
+    if (window.confirm('Como administrador, ¿seguro que deseas eliminar este anuncio permanentemente?')) {
+      try {
+        await api.delete(`/anuncios/${id}`);
+        window.location.href = '/';
+      } catch (error) {
+        alert('Error al eliminar');
+      }
+    }
+  };
 
   const fetchAnuncio = async () => {
     try {
@@ -129,6 +140,14 @@ const DetalleAnuncio = () => {
               <div className="mt-4" style={{ textAlign: 'center', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Debes iniciar sesión para contactar</p>
                 <Link to="/login" className="btn btn-outline" style={{ width: '100%' }}>Iniciar Sesión</Link>
+              </div>
+            )}
+            
+            {user && user.rol === 'admin' && (
+              <div className="mt-4" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                <button onClick={handleEliminarAdmin} className="btn btn-danger" style={{ width: '100%' }}>
+                  <Trash2 size={18} /> Eliminar Anuncio (Acción de Admin)
+                </button>
               </div>
             )}
           </div>

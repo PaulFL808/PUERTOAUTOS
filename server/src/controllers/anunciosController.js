@@ -174,7 +174,7 @@ exports.deleteAnuncio = async (req, res) => {
       return res.status(404).json({ message: 'Anuncio no encontrado' });
     }
 
-    if (anuncio.usuario_id !== req.usuario.id) {
+    if (anuncio.usuario_id !== req.usuario.id && req.usuario.rol !== 'admin') {
       return res.status(403).json({ message: 'No tienes permiso para eliminar este anuncio' });
     }
 
