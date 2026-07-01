@@ -31,6 +31,14 @@ const Anuncio = sequelize.define('Anuncio', {
     type: DataTypes.STRING(1000),
     allowNull: true,
   },
+  region: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  ciudad: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   estado: {
     type: DataTypes.STRING,
     defaultValue: 'Pendiente',

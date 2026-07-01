@@ -3,11 +3,15 @@ const { Op } = require('sequelize');
 
 exports.getAllAnuncios = async (req, res) => {
   try {
-    const { marca, modelo, precioMin, precioMax } = req.query;
+    const { marca, modelo, precioMin, precioMax, region, ciudad, kilometrajeMax } = req.query;
     let where = {};
 
     if (marca) where.marca = { [Op.like]: `%${marca}%` };
     if (modelo) where.modelo = { [Op.like]: `%${modelo}%` };
+    if (region) where.region = region;
+    if (ciudad) where.ciudad = ciudad;
+    if (kilometrajeMax) where.kilometraje = { [Op.lte]: kilometrajeMax };
+    
     if (precioMin || precioMax) {
       where.precio = {};
       if (precioMin) where.precio[Op.gte] = precioMin;
@@ -55,7 +59,7 @@ exports.getAnuncioById = async (req, res) => {
 
 exports.createAnuncio = async (req, res) => {
   try {
-    const { marca, modelo, anio, precio, kilometraje, descripcion } = req.body;
+    const { marca, modelo, anio, precio, kilometraje, descripcion, region, ciudad } = req.body;
     const usuario_id = req.usuario.id;
 
     const nuevoAnuncio = await Anuncio.create({
@@ -65,6 +69,8 @@ exports.createAnuncio = async (req, res) => {
       precio,
       kilometraje,
       descripcion,
+      region,
+      ciudad,
       usuario_id
     });
 
@@ -89,7 +95,7 @@ exports.createAnuncio = async (req, res) => {
 
 exports.updateAnuncio = async (req, res) => {
   try {
-    const { marca, modelo, anio, precio, kilometraje, descripcion } = req.body;
+    const { marca, modelo, anio, precio, kilometraje, descripcion, region, ciudad } = req.body;
     const anuncio = await Anuncio.findByPk(req.params.id);
 
     if (!anuncio) {
@@ -100,7 +106,7 @@ exports.updateAnuncio = async (req, res) => {
       return res.status(403).json({ message: 'No tienes permiso para editar este anuncio' });
     }
 
-    await anuncio.update({ marca, modelo, año: anio, precio, kilometraje, descripcion });
+    await anuncio.update({ marca, modelo, año: anio, precio, kilometraje, descripcion, region, ciudad });
 
     const fotosMantenerStr = req.body.fotos_mantener;
 

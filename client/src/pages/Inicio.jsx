@@ -5,11 +5,24 @@ import api from '../services/api';
 
 const MARCAS = ['Toyota', 'Chevrolet', 'Nissan', 'Hyundai', 'Kia', 'Suzuki'];
 
+const REGIONES_CIUDADES = {
+  'Metropolitana': ['Santiago', 'Puente Alto', 'Maipú', 'San Bernardo', 'Providencia', 'Las Condes'],
+  'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué', 'Villa Alemana', 'San Antonio'],
+  'Biobío': ['Concepción', 'Talcahuano', 'Los Ángeles', 'Chillán'],
+  'Araucanía': ['Temuco', 'Villarrica', 'Pucón'],
+  'Los Lagos': ['Puerto Montt', 'Osorno', 'Castro'],
+  'Antofagasta': ['Antofagasta', 'Calama', 'Tocopilla'],
+  'Coquimbo': ['La Serena', 'Coquimbo', 'Ovalle']
+};
+
 const Inicio = () => {
   const [anuncios, setAnuncios] = useState([]);
   const [filtros, setFiltros] = useState({
     marca: '',
-    precioMax: ''
+    precioMax: '',
+    region: '',
+    ciudad: '',
+    kilometrajeMax: ''
   });
 
   useEffect(() => {
@@ -30,7 +43,10 @@ const Inicio = () => {
     try {
       let query = '?';
       if (filtros.marca) query += `marca=${filtros.marca}&`;
-      if (filtros.precioMax) query += `precioMax=${filtros.precioMax}`;
+      if (filtros.precioMax) query += `precioMax=${filtros.precioMax}&`;
+      if (filtros.region) query += `region=${filtros.region}&`;
+      if (filtros.ciudad) query += `ciudad=${filtros.ciudad}&`;
+      if (filtros.kilometrajeMax) query += `kilometrajeMax=${filtros.kilometrajeMax}&`;
       
       const { data } = await api.get(`/anuncios${query}`);
       setAnuncios(data);
@@ -53,29 +69,53 @@ const Inicio = () => {
       </div>
 
       <div className="glass-panel p-6 mb-4">
-        <form onSubmit={handleFilter} className="search-form">
-          <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
-            <label className="form-label">Marca</label>
-            <select 
-              className="form-control" 
-              value={filtros.marca}
-              onChange={(e) => setFiltros({ ...filtros, marca: e.target.value })}
-            >
-              <option value="">Todas las marcas</option>
-              {MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
+        <form onSubmit={handleFilter} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '150px' }}>
+              <label className="form-label">Marca</label>
+              <select 
+                className="form-control" 
+                value={filtros.marca}
+                onChange={(e) => setFiltros({ ...filtros, marca: e.target.value })}
+              >
+                <option value="">Todas las marcas</option>
+                {MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '150px' }}>
+              <label className="form-label">Precio Máximo</label>
+              <input 
+                type="number" 
+                className="form-control" 
+                placeholder="Ej: 15000000" 
+                value={filtros.precioMax}
+                onChange={(e) => setFiltros({ ...filtros, precioMax: e.target.value })}
+              />
+            </div>
           </div>
-          <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
-            <label className="form-label">Precio Máximo</label>
-            <input 
-              type="number" 
-              className="form-control" 
-              placeholder="Ej: 15000000" 
-              value={filtros.precioMax}
-              onChange={(e) => setFiltros({ ...filtros, precioMax: e.target.value })}
-            />
+          
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '150px' }}>
+              <label className="form-label">Región</label>
+              <select className="form-control" value={filtros.region} onChange={(e) => setFiltros({ ...filtros, region: e.target.value, ciudad: '' })}>
+                <option value="">Todas las regiones</option>
+                {Object.keys(REGIONES_CIUDADES).map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '150px' }}>
+              <label className="form-label">Ciudad</label>
+              <select className="form-control" value={filtros.ciudad} onChange={(e) => setFiltros({ ...filtros, ciudad: e.target.value })} disabled={!filtros.region}>
+                <option value="">Todas las ciudades</option>
+                {filtros.region && REGIONES_CIUDADES[filtros.region] && REGIONES_CIUDADES[filtros.region].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '150px' }}>
+              <label className="form-label">Kilometraje Máx.</label>
+              <input type="number" className="form-control" placeholder="Ej: 80000" value={filtros.kilometrajeMax} onChange={(e) => setFiltros({ ...filtros, kilometrajeMax: e.target.value })} />
+            </div>
           </div>
-          <button type="submit" className="btn btn-primary" style={{ height: '45px' }}>
+
+          <button type="submit" className="btn btn-primary" style={{ height: '45px', alignSelf: 'flex-end', width: '200px' }}>
             <Search size={18} /> Buscar
           </button>
         </form>
@@ -112,8 +152,12 @@ const Inicio = () => {
                   {formatPrice(anuncio.precio)}
                 </p>
                 <div className="flex-between" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  <span>{anuncio.año}</span>
-                  <span>{anuncio.kilometraje} km</span>
+                  <span>{anuncio.año} • {anuncio.kilometraje} km</span>
+                  {anuncio.ciudad && anuncio.region ? (
+                    <span style={{ fontSize: '0.85rem' }}>📍 {anuncio.ciudad}</span>
+                  ) : (
+                    <span></span>
+                  )}
                 </div>
               </div>
             </div>

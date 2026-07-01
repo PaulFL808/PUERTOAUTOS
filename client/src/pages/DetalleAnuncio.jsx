@@ -69,9 +69,14 @@ const DetalleAnuncio = () => {
         {/* Right Column: Details */}
         <div>
           <div className="mb-4">
-            <h1 className="title" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+            <h1 className="title" style={{ fontSize: '2.5rem', marginBottom: '4px' }}>
               {anuncio.marca} {anuncio.modelo}
             </h1>
+            {anuncio.ciudad && anuncio.region && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '8px' }}>
+                📍 {anuncio.ciudad}, {anuncio.region}
+              </p>
+            )}
             <p className="text-gradient" style={{ fontSize: '2rem', fontWeight: 700 }}>
               {formatPrice(anuncio.precio)}
             </p>

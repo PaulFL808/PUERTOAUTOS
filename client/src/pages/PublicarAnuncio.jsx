@@ -14,6 +14,16 @@ const MARCAS_MODELOS = {
   Otro: ['Otro']
 };
 
+const REGIONES_CIUDADES = {
+  'Metropolitana': ['Santiago', 'Puente Alto', 'Maipú', 'San Bernardo', 'Providencia', 'Las Condes'],
+  'Valparaíso': ['Valparaíso', 'Viña del Mar', 'Quilpué', 'Villa Alemana', 'San Antonio'],
+  'Biobío': ['Concepción', 'Talcahuano', 'Los Ángeles', 'Chillán'],
+  'Araucanía': ['Temuco', 'Villarrica', 'Pucón'],
+  'Los Lagos': ['Puerto Montt', 'Osorno', 'Castro'],
+  'Antofagasta': ['Antofagasta', 'Calama', 'Tocopilla'],
+  'Coquimbo': ['La Serena', 'Coquimbo', 'Ovalle']
+};
+
 const PublicarAnuncio = () => {
   const [formData, setFormData] = useState({
     marca: '',
@@ -21,7 +31,9 @@ const PublicarAnuncio = () => {
     anio: '',
     precio: '',
     kilometraje: '',
-    descripcion: ''
+    descripcion: '',
+    region: '',
+    ciudad: ''
   });
   const [marcaSelect, setMarcaSelect] = useState('');
   const [modeloSelect, setModeloSelect] = useState('');
@@ -40,6 +52,11 @@ const PublicarAnuncio = () => {
     setMarcaSelect(value);
     setModeloSelect('');
     setFormData(prev => ({ ...prev, marca: value === 'Otro' ? '' : value, modelo: '' }));
+  };
+
+  const handleRegionChange = (e) => {
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, region: value, ciudad: '' }));
   };
 
   const handleModeloChange = (e) => {
@@ -119,10 +136,31 @@ const PublicarAnuncio = () => {
             </div>
           </div>
           
-          <div className="form-grid-3">
+          <div className="form-grid-2" style={{ marginTop: '16px' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label">Región</label>
+              <select className="form-control" name="region" value={formData.region} onChange={handleRegionChange} required>
+                <option value="">Seleccione región</option>
+                {Object.keys(REGIONES_CIUDADES).map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label">Ciudad</label>
+              <select className="form-control" name="ciudad" value={formData.ciudad} onChange={handleInputChange} required disabled={!formData.region}>
+                <option value="">Seleccione ciudad</option>
+                {formData.region && REGIONES_CIUDADES[formData.region] && REGIONES_CIUDADES[formData.region].map(c => (
+                   <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="form-grid-3" style={{ marginTop: '16px' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Año</label>
-              <input type="number" name="anio" className="form-control" required min="1900" max="2025" value={formData.anio} onChange={handleInputChange} />
+              <input type="number" name="anio" className="form-control" required min="1900" max="2026" value={formData.anio} onChange={handleInputChange} />
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Precio ($)</label>
