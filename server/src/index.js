@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const sequelize = require('./database');
+const bcrypt = require('bcrypt');
 
 // Importar modelos con asociaciones
 require('./models'); 
@@ -37,6 +38,19 @@ async function startServer() {
     // Sincronizar modelos (alter en desarrollo)
     await sequelize.sync({ alter: true });
     console.log('Modelos sincronizados con la base de datos.');
+
+    // Seed del administrador
+    const { Usuario } = require('./models');
+    const adminExists = await Usuario.findOne({ where: { email: 'admin@puertoautos.cl' } });
+    if (!adminExists) {
+      await Usuario.create({
+        nombre: 'Administrador',
+        email: 'admin@puertoautos.cl',
+        password: 'q1w2e3r4ferA',
+        rol: 'admin'
+      });
+      console.log('Usuario administrador creado con éxito.');
+    }
 
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en puerto ${PORT}`);

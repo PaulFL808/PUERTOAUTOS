@@ -8,6 +8,7 @@ import PublicarAnuncio from './pages/PublicarAnuncio';
 import EditarAnuncio from './pages/EditarAnuncio';
 import DetalleAnuncio from './pages/DetalleAnuncio';
 import MisAnuncios from './pages/MisAnuncios';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/editar/:id" element={<EditarAnuncio />} />
           <Route path="/anuncio/:id" element={<DetalleAnuncio />} />
           <Route path="/mis-anuncios" element={<MisAnuncios />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </main>
     </>

@@ -14,6 +14,9 @@ exports.getAllAnuncios = async (req, res) => {
       if (precioMax) where.precio[Op.lte] = precioMax;
     }
 
+    // Solo mostrar anuncios aprobados o vendidos al público
+    where.estado = { [Op.in]: ['Activo', 'Vendido'] };
+
     const anuncios = await Anuncio.findAll({
       where,
       include: [
@@ -175,5 +178,62 @@ exports.deleteAnuncio = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al eliminar el anuncio' });
+  }
+};
+
+exports.getAdminPendientes = async (req, res) => {
+  try {
+    const anuncios = await Anuncio.findAll({
+      where: { estado: 'Pendiente' },
+      include: [
+        { model: Foto, as: 'fotos' },
+        { model: Usuario, as: 'dueño', attributes: ['id', 'nombre', 'email'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(anuncios);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error obteniendo anuncios pendientes' });
+  }
+};
+
+exports.updateEstadoAdmin = async (req, res) => {
+  try {
+    const { estado } = req.body;
+    const anuncio = await Anuncio.findByPk(req.params.id);
+
+    if (!anuncio) {
+      return res.status(404).json({ message: 'Anuncio no encontrado' });
+    }
+
+    if (estado === 'Rechazado') {
+      // El usuario solicitó eliminar por completo los rechazados
+      await anuncio.destroy();
+      return res.json({ message: 'Anuncio rechazado y eliminado' });
+    }
+
+    await anuncio.update({ estado });
+    res.json({ message: 'Estado del anuncio actualizado', anuncio });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al actualizar el estado' });
+  }
+};
+
+exports.getMisAnuncios = async (req, res) => {
+  try {
+    const anuncios = await Anuncio.findAll({
+      where: { usuario_id: req.usuario.id },
+      include: [
+        { model: Foto, as: 'fotos' },
+        { model: Usuario, as: 'dueño', attributes: ['id', 'nombre', 'email'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(anuncios);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error obteniendo mis anuncios' });
   }
 };

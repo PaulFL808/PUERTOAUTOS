@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
     
     // Generar token (opcional devolverlo en registro, pero mejor para UX)
     const token = jwt.sign(
-      { id: nuevoUsuario.id, nombre: nuevoUsuario.nombre }, 
+      { id: nuevoUsuario.id, nombre: nuevoUsuario.nombre, rol: nuevoUsuario.rol }, 
       process.env.JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -41,12 +41,12 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: usuario.id, nombre: usuario.nombre },
+      { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email } });
+    res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor.' });

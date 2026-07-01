@@ -96,6 +96,8 @@ const DetalleAnuncio = () => {
               </span>
               {anuncio.estado === 'Vendido' ? (
                 <span className="tag tag-sold" style={{ fontSize: '1rem' }}>Vendido</span>
+              ) : anuncio.estado === 'Pendiente' ? (
+                <span className="tag" style={{ background: 'rgba(234, 179, 8, 0.15)', color: '#eab308', fontSize: '1rem' }}>Pendiente</span>
               ) : (
                 <span className="tag tag-active" style={{ fontSize: '1rem' }}>Activo</span>
               )}

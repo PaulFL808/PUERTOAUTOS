@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     
     // El backend actualmente no devuelve user en register, 
     // pero guardamos lo basico
-    const userData = { nombre, email };
+    const userData = { nombre, email, rol: 'usuario' };
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     return res.data;

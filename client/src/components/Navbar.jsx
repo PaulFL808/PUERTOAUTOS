@@ -28,9 +28,15 @@ const Navbar = () => {
               <Link to="/mis-anuncios" className="form-label" style={{ color: 'var(--text-main)' }}>
                 Mis Anuncios
               </Link>
-              <Link to="/publicar" className="btn btn-primary">
-                <PlusCircle size={18} /> Publicar
-              </Link>
+              {user.rol === 'admin' ? (
+                <Link to="/admin" className="btn btn-primary" style={{ background: 'linear-gradient(135deg, #ef4444, #f59e0b)' }}>
+                  Panel Admin
+                </Link>
+              ) : (
+                <Link to="/publicar" className="btn btn-primary">
+                  <PlusCircle size={18} /> Publicar
+                </Link>
+              )}
               <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '8px', border: 'none' }}>
                 <LogOut size={18} />
               </button>

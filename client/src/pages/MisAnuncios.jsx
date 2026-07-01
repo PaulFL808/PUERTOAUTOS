@@ -21,10 +21,8 @@ const MisAnuncios = () => {
 
   const fetchMisAnuncios = async () => {
     try {
-      // Optimizacion: podriamos tener un endpoint GET /mis-anuncios, pero para MVP, filtramos
-      const { data } = await api.get('/anuncios');
-      const filtrados = data.filter(a => a.usuario_id === user.id);
-      setAnuncios(filtrados);
+      const { data } = await api.get('/anuncios/mis-anuncios');
+      setAnuncios(data);
     } catch (error) {
       console.error('Error cargando anuncios', error);
     } finally {
@@ -90,7 +88,13 @@ const MisAnuncios = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>{anuncio.marca} {anuncio.modelo}</h3>
-                  {anuncio.estado === 'Vendido' ? <span className="tag tag-sold">Vendido</span> : <span className="tag tag-active">Activo</span>}
+                  {anuncio.estado === 'Vendido' ? (
+                    <span className="tag tag-sold">Vendido</span>
+                  ) : anuncio.estado === 'Pendiente' ? (
+                    <span className="tag" style={{background: 'rgba(234, 179, 8, 0.15)', color: '#eab308'}}>Pendiente</span>
+                  ) : (
+                    <span className="tag tag-active">Activo</span>
+                  )}
                 </div>
                 <p className="text-gradient" style={{ fontSize: '1.1rem', fontWeight: 700 }}>{formatPrice(anuncio.precio)}</p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{anuncio.año} • {anuncio.kilometraje} km</p>
@@ -98,15 +102,13 @@ const MisAnuncios = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {anuncio.estado === 'Activo' && (
-                  <>
-                    <button onClick={() => handleMarcarVendido(anuncio.id)} className="btn btn-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-                      <CheckCircle size={14} /> Marcar Vendido
-                    </button>
-                    <Link to={`/editar/${anuncio.id}`} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', textAlign: 'center' }}>
-                      <Edit size={14} /> Editar
-                    </Link>
-                  </>
+                  <button onClick={() => handleMarcarVendido(anuncio.id)} className="btn btn-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                    <CheckCircle size={14} /> Marcar Vendido
+                  </button>
                 )}
+                <Link to={`/editar/${anuncio.id}`} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', textAlign: 'center' }}>
+                  <Edit size={14} /> Editar
+                </Link>
                 <button onClick={() => handleEliminar(anuncio.id)} className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
                   <Trash2 size={14} /> Eliminar
                 </button>
